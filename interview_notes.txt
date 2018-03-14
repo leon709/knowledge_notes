@@ -1,0 +1,10 @@
+二叉树，平衡二叉树，红黑树
+
+http协议，七层、五层网络模型
+
+mysql 锁机制和事务隔离级别
+
+Java并发编程，AQS： AbstractQueueSynchronizer， 
+AQS定义了一套多线程访问共享资源的同步器框架，许多同步类实现都依赖于它，如常用的ReentrantLock/Semaphore/CountDownLatch.
+http://www.cnblogs.com/waterystone/p/4920797.html
+
