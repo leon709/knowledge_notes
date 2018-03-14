@@ -7,4 +7,40 @@ mysql 锁机制和事务隔离级别
 Java并发编程，AQS： AbstractQueueSynchronizer， 
 AQS定义了一套多线程访问共享资源的同步器框架，许多同步类实现都依赖于它，如常用的ReentrantLock/Semaphore/CountDownLatch.
 http://www.cnblogs.com/waterystone/p/4920797.html
+AQS 维护一个valitile in state (共享资源), 和一个FIFO线程等待队列（多线程争用资源被阻塞时会进入此队列）。
+valitile: 
+http://www.importnew.com/18126.html
+volatile: 易变的，挥发的。
+虚拟机操作数据时，不是直接操作主内存（物理内存），而是分3步：
+1. 先复制副本到CPU高速缓存去，
+2. 进行运算操作
+3. 然后刷新回到主内存
+原子性：Java中只有赋值语句是原子性的，比如：int i = 10; 因为这个操作是直接操作主内存的。不过区分： int y = i; 这种不是原子性操作。
+可见性：volatile 修饰的变量，保证了可见性，因为对volatile变量的更新会立即刷入主内存。
+有序性：指的是代码行在虚拟机中的实际运行顺序。Java内存模型具备一些先天的“有序性”，即不需要通过任何手段就能够得到保证的有序性，这个通常也称为 happens-before 原则。如果两个操作的执行次序无法从happens-before原则推导出来，那么它们就不能保证它们的有序性，虚拟机可以随意地对它们进行重排序。
+虽然虚拟机可以对多个代码行进行重排序，但建立在，或者说保证不影响程序结果和行为的基础上。
+对volatile的变量操作指令，虚拟机在做重排执行顺序的时候，对volatile的变量操作指令不会改变其相对位置。
+volatile关键字禁止指令重排序有两层意思：
+1）当程序执行到volatile变量的读操作或者写操作时，在其前面的操作的更改肯定全部已经进行，且结果已经对后面的操作可见；在其后面的操作肯定还没有进行；
+2）在进行指令优化时，不能将在对volatile变量访问的语句放在其后面执行，也不能把volatile变量后面的语句放到其前面执行。
+比如：
+//x、y为非volatile变量
+//flag为volatile变量
+x = 2;        //语句1
+y = 0;        //语句2
+flag = true;  //语句3
+x = 4;         //语句4
+y = -1;       //语句5
 
+语句3，肯定能保证还在第三个语句执行，而前面的语句1， 2，和后面的4，5不能保证
+
+
+在java 1.5的java.util.concurrent.atomic包下提供了一些原子操作类，即对基本数据类型的 自增（加1操作），自减（减1操作）、以及加法操作（加一个数），减法操作（减一个数）进行了封装，保证这些操作是原子性操作。atomic是利用CAS来实现原子性操作的（Compare And Swap），CAS实际上是利用处理器提供的CMPXCHG指令实现的，而处理器执行CMPXCHG指令是一个原子性操作。
+
+
+ReentrantLock: 可重入锁，更贴切的说，应该叫可重入排他锁。
+state初始化为0（volatile in state = 0;），表示未锁定状态。A线程lock()时，会调用tryAcquire()独占该锁并将state+1。此后，其他线程再tryAcquire()时就会失败(排他)，直到A线程unlock()到state=0（即释放锁）为止，其它线程才有机会获取该锁。当然，释放锁之前，A线程自己是可以重复获取此锁的（state会累加），这就是可重入的概念。但要注意，获取多少次就要释放多么次，这样才能保证state是能回到零态的。
+
+JVM, jstack
+通过日志分析线程死锁的原因。执行: jstack -l 线程号 >线程号.log
+JConsole也可以看。
