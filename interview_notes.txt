@@ -1,13 +1,57 @@
 二叉树，平衡二叉树，红黑树
 
 http协议，七层、五层网络模型
+五层： 应传网数物
+七层： 应表会传网数物
+应用层： 文件传输， 电子邮件， 文件服务， 虚拟终端 等 （FTP， HTTP， SMTP， DNS， RIP， Telnet）
+表示层： 数据格式化， 代码转换， 数据加密， （没有协议）
+会话层： 解除和建立与别的节点的联系， （没有协议）
+传输层： 提供端对端接口， TCP， UDP
+网络层： 为数据包选择路由， IP， ICMP， OSPF， BGP， IGMP， ARP， RARP
+数据链路层： 传输有地址的帧以及错误检测功能， SLIP， CSLIP， PPP， MTU， ARP， RARP
+物理层： 以二进制数据形式在物理媒体上传输数据， ISO2110， IEEE802， IEEE802.2
+
+
+https:
+1. 发送https 请求到服务端，服务端返回，客户端获得公钥
+2. 客户端生成随机密钥，以作为将来数据传输的对称加密使用
+3. 客户端使用第1步获得的公钥，对第2步生成的随机密钥加密，然后发送给服务端
+4. 服务端用私钥可以解密客户端发来的信息
+
+
 
 mysql 锁机制和事务隔离级别
+隔离级别				| 脏读 	| 不可重复读 | 幻读 |
+Read Uncommitted	| 	Y	|	Y	   |  Y	 |
+Read Committed		|	N	|	Y	   |  Y	 |
+Repeatable Read		|	N	|	N	   |  Y	 |
+Serializable		| 	N	|	N	   |  N	 |
 
-Java并发编程，AQS： AbstractQueueSynchronizer， 
-AQS定义了一套多线程访问共享资源的同步器框架，许多同步类实现都依赖于它，如常用的ReentrantLock/Semaphore/CountDownLatch.
+Read Uncommitted(读取未提交内容)
+(1)所有事务都可以看到其他未提交事务的执行结果
+(2)本隔离级别很少用于实际应用，因为它的性能也不比其他级别好多少
+(3)该级别引发的问题是——脏读(Dirty Read)：读取到了未提交的数据
+
+Read Committed(读取提交内容)
+(1)这是大多数数据库系统的默认隔离级别（但不是MySQL默认的）
+(2)它满足了隔离的简单定义：一个事务只能看见已经提交事务所做的改变
+(3)这种隔离级别出现的问题是——不可重复读(Nonrepeatable Read)：不可重复读意味着我们在同一个事务中执行完全相同的select语句时可能看到不一样的结果。
+     |——>导致这种情况的原因可能有：(1)有一个交叉的事务有新的commit，导致了数据的改变;(2)一个数据库被多个实例操作时,同一事务的其他实例在该实例处理其间可能会有新的commit
+
+Repeatable Read(可重读)
+(1)这是MySQL的默认事务隔离级别
+(2)它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行
+(3)此级别可能出现的问题——幻读(Phantom Read)：当用户读取某一范围的数据行时，另一个事务又在该范围内插入了新行，当用户再读取该范围的数据行时，会发现有新的“幻影” 行
+(4)InnoDB和Falcon存储引擎通过多版本并发控制(MVCC，Multiversion Concurrency Control)机制解决了不可重复读的问题，但是存在幻读的问题。
+
+Serializable(可串行化)
+(1)这是最高的隔离级别
+(2)它通过强制事务排序，使之不可能相互冲突，从而解决幻读问题。简言之,它是在每个读的数据行上加上共享锁。
+(3)在这个级别，可能导致大量的超时现象和锁竞争
+
+Java并发编程，AQS： AbstractQueueSynchronizer， 抽象队列同步器。AQS定义了一套多线程访问共享资源的同步器框架，许多同步类实现都按照这个模型实现，如常用的ReentrantLock/Semaphore/CountDownLatch.
 http://www.cnblogs.com/waterystone/p/4920797.html
-AQS 维护一个valitile in state (共享资源), 和一个FIFO线程等待队列（多线程争用资源被阻塞时会进入此队列）。
+AQS 维护一个变量valitile in state (共享资源), 和一个FIFO线程等待队列（多线程争用资源被阻塞时会进入此队列）。
 valitile: 
 http://www.importnew.com/18126.html
 volatile: 易变的，挥发的。
